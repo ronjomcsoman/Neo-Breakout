@@ -2,117 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Neo Breakout</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style>
-    html, body {
-      height: 100%;
-    }
-
     body {
       margin: 0;
-      background:
-        radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
       color: #e5e7eb;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
+      touch-action: none; /* Prevents scrolling while playing */
+      overflow: hidden;
     }
 
     canvas {
-      background:
-        radial-gradient(circle at 20% 0%, #1f2937 0, #020617 60%, #000 100%);
+      background: radial-gradient(circle at 20% 0%, #1f2937 0, #020617 60%, #000 100%);
       border-radius: 0.75rem;
-      box-shadow:
-        0 20px 40px rgba(15, 23, 42, 0.8),
-        0 0 0 1px rgba(148, 163, 184, 0.2);
+      border: 1px solid rgba(148, 163, 184, 0.2);
       max-width: 100%;
       height: auto;
-      image-rendering: crisp-edges;
-      image-rendering: pixelated;
     }
 
-    .pixel-font {
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .glow {
-      text-shadow:
-        0 0 12px rgba(56, 189, 248, 0.6),
-        0 0 30px rgba(59, 130, 246, 0.55);
+    .panel-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      backdrop-filter: blur(4px);
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
+<body class="min-h-screen flex flex-col items-center justify-center p-2 md:p-4">
   <div class="w-full max-w-6xl mx-auto">
-    <header class="mb-8 flex justify-between items-start">
+    <header class="mb-4 md:mb-8 flex justify-between items-start">
       <div>
-        <h1 class="text-4xl font-bold text-cyan-400 tracking-wider uppercase">Neo Breakout</h1>
-        <p class="text-xs md:text-sm text-slate-300/80 mt-1">
-          Break all the bricks, catch power-ups, and climb through increasingly difficult levels.
-        </p>
+        <h1 class="text-2xl md:text-4xl font-bold text-cyan-400 tracking-wider uppercase">Neo Breakout</h1>
       </div>
-      <div class="text-right text-xs text-slate-400 leading-relaxed uppercase tracking-widest">
-        <p>Move <span class="text-white">← / → or A / D or mouse</span></p>
-        <p>Launch <span class="text-white">Space</span> · Pause <span class="text-white">P</span></p>
+      <div class="text-right text-[10px] md:text-xs text-slate-400 uppercase tracking-widest">
+        <p class="hidden md:block">Move: <span class="text-white">Mouse / Keys</span></p>
+        <p>Launch: <span class="text-white">Tap Screen / Space</span></p>
       </div>
     </header>
 
     <main class="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
-      <section class="flex-1 flex justify-center order-1 md:order-none">
-        <canvas id="gameCanvas" width="960" height="540" aria-label="Breakout game canvas"></canvas>
+      <section class="flex-1 flex justify-center w-full">
+        <canvas id="gameCanvas" width="960" height="540"></canvas>
       </section>
 
-     <aside class="w-full md:w-64 order-2 md:order-none space-y-3 md:space-y-4">
-        <section class="bg-slate-900/70 rounded-xl border border-slate-700/70 p-3.5 md:p-4 backdrop-blur">
-          <h2 class="pixel-font text-xs font-semibold text-slate-200 mb-2">Mission Status</h2>
-          <dl class="grid grid-cols-3 gap-x-3 gap-y-1 text-[11px] md:text-xs">
-            <div>
-              <dt class="text-slate-400">Score</dt>
-              <dd id="score" class="font-semibold text-sky-300">0</dd>
-            </div>
-            <div>
-              <dt class="text-slate-400">Lives</dt>
-              <dd id="lives" class="font-semibold text-rose-300">3</dd>
-            </div>
-            <div>
-              <dt class="text-slate-400">Level</dt>
-              <dd id="level" class="font-semibold text-emerald-300">1</dd>
-            </div>
-          </dl>
-
-          <div class="mt-3.5 text-[11px] md:text-xs text-slate-300/90" id="statusMessage"></div>
-        </section>
-
-        <section class="bg-slate-900/70 rounded-xl border border-slate-700/70 p-3.5 md:p-4 backdrop-blur space-y-2">
-          <h2 class="pixel-font text-xs font-semibold text-slate-200 mb-1.5">Power-Ups</h2>
-          <ul class="text-[11px] md:text-xs text-slate-300/90 space-y-1.5">
-            <li class="flex items-start gap-2">
-              <span class="mt-0.5 inline-flex h-3.5 w-3.5 rounded-sm bg-sky-400/90 shadow shadow-sky-400/60"></span>
-              <span>
-                <span class="font-semibold text-sky-200">Multi-ball</span> – splits into multiple balls for massive damage.
-              </span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="mt-0.5 inline-flex h-3.5 w-3.5 rounded-sm bg-emerald-400/90 shadow shadow-emerald-400/60"></span>
-              <span>
-                <span class="font-semibold text-emerald-200">Wider paddle</span> – temporary paddle size boost.
-              </span>
-            </li>
-          </ul>
-        </section>
-
-        <section class="bg-slate-900/70 rounded-xl border border-slate-700/70 p-3.5 md:p-4 backdrop-blur hidden md:block">
-          <h2 class="pixel-font text-xs font-semibold text-slate-200 mb-2">Controls & Tips</h2>
-          <ul class="text-[11px] md:text-xs text-slate-300/90 space-y-1.5">
-            <li>Use the paddle angle: hit the ball with the paddle edges to curve its trajectory.</li>
-            <li>Prioritize catching multi-ball power-ups when the field is dense with bricks.</li>
-            <li>Wider paddle is temporary – make the most of it while it lasts.</li>
-          </ul>
+      <aside class="w-full md:w-64 space-y-3">
+        <section class="panel-card rounded-xl p-4">
+          <h2 class="text-xs font-semibold text-slate-200 mb-2 uppercase tracking-tighter">Mission Status</h2>
+          <div class="flex justify-between md:grid md:grid-cols-3 gap-2">
+            <div><p class="text-[10px] text-slate-500">Score</p><p id="score" class="text-cyan-300 font-bold">0</p></div>
+            <div><p class="text-[10px] text-slate-500">Lives</p><p id="lives" class="text-rose-300 font-bold">3</p></div>
+            <div><p class="text-[10px] text-slate-500">Level</p><p id="level" class="text-emerald-300 font-bold">1</p></div>
+          </div>
         </section>
       </aside>
     </main>
-   <footer class="mt-6 md:mt-8 text-center pb-4">
+       <footer class="mt-6 md:mt-8 text-center pb-4">
       <p class="text-xs text-slate-400/80">
         Developed with <span class="text-rose-400 inline-block">♥</span> by 
         <a href="https://techwithron.co.in" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 font-medium underline decoration-dotted underline-offset-2 transition-colors">
@@ -128,24 +74,20 @@
       const ctx = canvas.getContext('2d');
       const scoreEl = document.getElementById('score');
       const livesEl = document.getElementById('lives');
-      const statusEl = document.getElementById('statusMsg');
 
       const GAME = {
-        score: 0, lives: 3, level: 1,
+        score: 0, lives: 3,
         paddle: { x: 420, y: 490, w: 120, h: 12 },
         balls: [], bricks: [], 
         active: false, stuck: true,
-        speed: 4 // REDUCED SPEED
+        speed: 4 
       };
 
       function initLevel() {
         GAME.bricks = [];
-        const rows = 4;
-        const cols = 9;
-        const w = 92, h = 24, gap = 8;
+        const rows = 4, cols = 9, w = 92, h = 24, gap = 8;
         const colors = ['#00f5ff', '#00b8c0', '#008a90', '#22c55e'];
         const startX = (canvas.width - (cols * (w + gap))) / 2;
-        
         for(let r=0; r<rows; r++) {
           for(let c=0; c<cols; c++) {
             GAME.bricks.push({ x: startX + c*(w+gap), y: 80 + r*(h+gap), w, h, color: colors[r], active: true });
@@ -159,48 +101,38 @@
         GAME.balls = [{ x: GAME.paddle.x + GAME.paddle.w/2, y: GAME.paddle.y - 10, dx: 0, dy: 0, r: 7 }];
       }
 
+      function launchBall() {
+        if(GAME.stuck) {
+          GAME.active = true;
+          GAME.stuck = false;
+          GAME.balls[0].dx = (Math.random() - 0.5) * (GAME.speed * 0.5);
+          GAME.balls[0].dy = -GAME.speed;
+        }
+      }
+
       function update() {
         if (!GAME.active || GAME.stuck) return;
-
         GAME.balls.forEach((ball, bIdx) => {
-          ball.x += ball.dx;
-          ball.y += ball.dy;
-
-          // Wall bounce
+          ball.x += ball.dx; ball.y += ball.dy;
           if (ball.x + ball.r > canvas.width || ball.x - ball.r < 0) ball.dx *= -1;
           if (ball.y - ball.r < 0) ball.dy *= -1;
-
-          // Paddle collision
           if (ball.y + ball.r > GAME.paddle.y && ball.x > GAME.paddle.x && ball.x < GAME.paddle.x + GAME.paddle.w) {
             let hitPos = (ball.x - (GAME.paddle.x + GAME.paddle.w/2)) / (GAME.paddle.w/2);
             ball.dx = hitPos * GAME.speed;
             ball.dy = -Math.sqrt(Math.abs(Math.pow(GAME.speed, 2) - Math.pow(ball.dx, 2)));
-            ball.y = GAME.paddle.y - ball.r; // Prevent clipping
+            ball.y = GAME.paddle.y - ball.r;
           }
-
-          // Brick collision
-          for (let brick of GAME.bricks) {
+          GAME.bricks.forEach(brick => {
             if (brick.active && ball.x > brick.x && ball.x < brick.x + brick.w && ball.y > brick.y && ball.y < brick.y + brick.h) {
-              brick.active = false;
-              ball.dy *= -1;
-              GAME.score += 10;
-              scoreEl.innerText = GAME.score;
-              break;
+              brick.active = false; ball.dy *= -1; GAME.score += 10; scoreEl.innerText = GAME.score;
             }
-          }
-
-          // Lose life
+          });
           if (ball.y > canvas.height) {
             GAME.balls.splice(bIdx, 1);
             if (GAME.balls.length === 0) {
-              GAME.lives--;
-              livesEl.innerText = GAME.lives;
-              GAME.active = false;
-              resetBall();
-              if (GAME.lives <= 0) {
-                alert("Game Over");
-                location.reload();
-              }
+              GAME.lives--; livesEl.innerText = GAME.lives;
+              GAME.active = false; resetBall();
+              if (GAME.lives <= 0) { alert("Game Over"); location.reload(); }
             }
           }
         });
@@ -209,67 +141,50 @@
       function draw() {
         ctx.fillStyle = '#020617';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Simple Grid
-        ctx.strokeStyle = '#1e293b';
-        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 0.5;
         for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
         for(let i=0; i<canvas.height; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
-
-        // Bricks
-        GAME.bricks.forEach(b => {
-          if (!b.active) return;
-          ctx.fillStyle = b.color;
-          ctx.fillRect(b.x, b.y, b.w, b.h);
-        });
-
-        // Paddle
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(GAME.paddle.x, GAME.paddle.y, GAME.paddle.w, GAME.paddle.h);
-
-        // Ball
+        GAME.bricks.forEach(b => { if (b.active) { ctx.fillStyle = b.color; ctx.fillRect(b.x, b.y, b.w, b.h); }});
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(GAME.paddle.x, GAME.paddle.y, GAME.paddle.w, GAME.paddle.h);
         GAME.balls.forEach(b => {
           if (GAME.stuck) b.x = GAME.paddle.x + GAME.paddle.w/2;
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-          ctx.fill();
+          ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
         });
-
-        // UI Overlay
         if(GAME.stuck) {
-            ctx.fillStyle = 'rgba(2, 6, 23, 0.95)';
-            ctx.fillRect(250, 220, 460, 80);
-            ctx.strokeStyle = '#1e293b';
-            ctx.strokeRect(250, 220, 460, 80);
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'center';
-            ctx.font = '700 18px Inter';
-            ctx.fillText("NEO BREAKOUT", canvas.width/2, 255);
-            ctx.font = '12px Inter';
-            ctx.fillStyle = '#64748b';
-            ctx.fillText("PRESS SPACE TO LAUNCH", canvas.width/2, 280);
+            ctx.fillStyle = 'rgba(2, 6, 23, 0.95)'; ctx.fillRect(250, 220, 460, 80);
+            ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.font = '700 18px Inter';
+            ctx.fillText("NEO BREAKOUT", canvas.width/2, 250);
+            ctx.font = '12px Inter'; ctx.fillStyle = '#64748b';
+            ctx.fillText("TAP SCREEN OR PRESS SPACE TO START", canvas.width/2, 280);
             ctx.textAlign = 'left';
         }
-
         update();
         requestAnimationFrame(draw);
       }
 
-      canvas.addEventListener('mousemove', (e) => {
+      // --- MOBILE & MOUSE CONTROLS ---
+      function handleMove(clientX) {
         const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const x = (clientX - rect.left) * (canvas.width / rect.width);
         GAME.paddle.x = Math.max(0, Math.min(canvas.width - GAME.paddle.w, x - GAME.paddle.w/2));
-      });
+      }
 
+      canvas.addEventListener('mousemove', (e) => handleMove(e.clientX));
+      
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // Prevents page wobble
+        handleMove(e.touches[0].clientX);
+      }, { passive: false });
+
+      // Tap to Launch (Mobile)
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        launchBall();
+      }, { passive: false });
+
+      // Space to Launch (Desktop)
       window.addEventListener('keydown', (e) => {
-        if(e.code === 'Space' && GAME.stuck) {
-          GAME.active = true;
-          GAME.stuck = false;
-          GAME.balls[0].dx = (Math.random() - 0.5) * (GAME.speed * 0.5);
-          GAME.balls[0].dy = -GAME.speed;
-          statusEl.innerText = "Catch power-ups and clear all bricks!";
-        }
+        if(e.code === 'Space') launchBall();
       });
 
       initLevel();
